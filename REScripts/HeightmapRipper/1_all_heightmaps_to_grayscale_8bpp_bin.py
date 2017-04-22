@@ -95,8 +95,6 @@ for y in range(0, mapWidthTiles):
         except:
             print("missing lodlevel " + str(lodLevel) + " for " + indexStr)
 
-    sys.stdout.write('\n')
-
 o = open(outFile, 'wb')
 
 o.write(bytearray(outPixels))
