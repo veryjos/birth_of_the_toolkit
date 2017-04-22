@@ -16,6 +16,7 @@ namespace BoTK.Entities {
 
       foreach (var entity in entities) {
         var outPath = Path.Combine(path, entity.Name);
+        new FileInfo(outPath).Directory.Create();
 
         var outStream = File.OpenWrite(outPath);
 
