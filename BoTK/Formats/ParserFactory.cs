@@ -11,6 +11,9 @@ namespace BoTK.Formats {
       if (name == Yaz0Parser.GetName())
         return new Yaz0Parser();
 
+      if (name == SARCParser.GetName())
+        return new SARCParser();
+
       return null;
     }
   }

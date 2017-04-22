@@ -49,6 +49,7 @@
     <Compile Include="Formats\Parsers\BLWPParser.cs" />
     <Compile Include="Formats\Parsers\BYMLParser.cs" />
     <Compile Include="Formats\Parsers\Parser.cs" />
+    <Compile Include="Formats\Parsers\SARCParser.cs" />
     <Compile Include="Formats\Parsers\Yaz0Parser.cs" />
     <Compile Include="ProgOptions.cs" />
     <Compile Include="Program.cs" />
