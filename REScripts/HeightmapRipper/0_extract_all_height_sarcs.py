@@ -2,9 +2,10 @@ import os
 import glob
 import re
 
-minsmax = (0, 0)
-sparseFileArray = {}
+heightmapDir = sys.argv[1]
+outputDir = sys.argv[2]
 
-fileNames = glob.glob("../TESTDATA/height/*hght*")
+fileNames = glob.glob(heightmapDir + "/*hght*")
+
 for fileName in fileNames:
-    os.system("mono ../BoTK.exe --input " + fileName + " --output ../TESTDATA/height_raw")
+    os.system("mono ../BoTK.exe --input " + fileName + " --output " + outputDir)
