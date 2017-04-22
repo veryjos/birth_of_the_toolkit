@@ -18,11 +18,11 @@ Archives currently supported:
 - sarc
 
 ```bash
-# Decoding a yaz0 compressed byml file
-BoTK.exe --inputfile actors.byml --parserchain yaz0,byml --outputfile actors_decoded.byml
+# Decoding a yaz0 compressed byml file to stdout
+mono BoTK.exe --input actors.byml
 
-# Decoding a yaz0 compressed sarc archive to stdout
-BoTK.exe --inputfile 56000009C8.hght.sstera --parserchain yaz0,sarc
+# Recursively decoding a yaz0 compressed sarc archive to a folder
+mono BoTK.exe --input 56000009C8.hght.sstera --output 56000009C8
 ```
 
 ## License
