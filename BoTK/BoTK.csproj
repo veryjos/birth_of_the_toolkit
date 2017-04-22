@@ -44,13 +44,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Formats\ParseChain.cs" />
-    <Compile Include="Formats\ParserFactory.cs" />
-    <Compile Include="Formats\Parsers\BLWPParser.cs" />
-    <Compile Include="Formats\Parsers\BYMLParser.cs" />
-    <Compile Include="Formats\Parsers\Parser.cs" />
-    <Compile Include="Formats\Parsers\SARCParser.cs" />
-    <Compile Include="Formats\Parsers\Yaz0Parser.cs" />
+    <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\EntityCollection.cs" />
+    <Compile Include="Entities\Formats\SARCEntityCollection.cs" />
+    <Compile Include="Entities\Formats\YAZ0Entity.cs" />
+    <Compile Include="Entities\EntityRepository.cs" />
+    <Compile Include="Entities\Formats\BinaryEntity.cs" />
+    <Compile Include="Entities\Formats\BYMLEntity.cs" />
+    <Compile Include="Entities\Magic.cs" />
     <Compile Include="ProgOptions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -7,16 +7,11 @@ namespace BoTK {
     public bool verbose { get; set; }
 
     [Option(
-      HelpText = "Input file (stdin by default)")]
-    public string inputFile { get; set; }
+      HelpText = "Input file or folder (stdin by default)")]
+    public string input { get; set; }
 
     [Option(
-      HelpText = "Output file (stdout by default)")]
-    public string outputFile { get; set; }
-
-    [Option(
-      HelpText = "Comma-delimited list of parsers to chain when decoding input")]
-    public string parserChain { get; set; } = "";
-    public string[] parserChainArray => parserChain.Split(',');
+      HelpText = "Output file or folder (stdout by default)")]
+    public string output { get; set; }
   }
 }

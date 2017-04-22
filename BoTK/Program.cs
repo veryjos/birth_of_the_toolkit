@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
+using BoTK.Entities;
 using CommandLine;
-
-using BoTK.Formats;
 
 namespace BoTK {
 
@@ -17,35 +16,29 @@ namespace BoTK {
     }
 
     public static int MainWithOpts(ProgOptions options) {
-      // Get the input stream that the options describe
       var inputStream = GetInputStream(options);
-      var outputStream = GetOutputStream(options);
 
-      var parseChain = new ParseChain(inputStream);
+      // Parse the input stream
+      var entity = EntityRepository.Decode(inputStream);
 
-      foreach (var parserName in options.parserChainArray) {
-        parseChain.Parse(ParserFactory.CreateFromName(parserName));
+      if (entity.IsCollection()) {
+        (entity as EntityCollection).WriteDecodedToFolder(options.output);
+      }
+      else {
+        var outputStream = GetOutputStream(options);
+
+        entity.WriteDecodedToStream(outputStream);
+
+        outputStream.Close();
       }
 
-      parseChain.GetResult(outputStream);
-
       inputStream.Close();
-
-      outputStream.Flush();
-      outputStream.Close();
 
       return 0;
     }
 
-    public static Stream GetOutputStream(ProgOptions options) {
-      if (options.outputFile == null)
-        return Console.OpenStandardOutput();
-
-      return File.OpenWrite(options.outputFile);
-    }
-
     public static Stream GetInputStream(ProgOptions options) {
-      if (options.inputFile == null) {
+      if (options.input == null) {
         var inStream = new MemoryStream();
 
         Console.OpenStandardInput().CopyTo(inStream);
@@ -54,10 +47,17 @@ namespace BoTK {
         return inStream;
       }
 
-      if (!File.Exists(options.inputFile))
+      if (!File.Exists(options.input))
         throw new FileNotFoundException("Input file not found");
 
-      return File.OpenRead(options.inputFile);
+      return File.OpenRead(options.input);
+    }
+
+    public static Stream GetOutputStream(ProgOptions options) {
+      if (options.output == null)
+        return Console.OpenStandardOutput();
+
+      return File.OpenWrite(options.output);
     }
   }
 }
