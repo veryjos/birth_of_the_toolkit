@@ -2,6 +2,13 @@
 
 A CLI tool for decoding formats in Legend of Zelda: Breath of the Wild.
 
+## Building
+```bash
+git submodule init
+git submodule update
+xbuild BoTK.sln
+```
+
 ## Example
 Encodings currently supported:
 - yaz0
