@@ -1,0 +1,3 @@
+[submodule "ThirdParty/botw-lib"]
+	path = ThirdParty/botw-lib
+	url = https://github.com/HandsomeMatt/botw-lib
