@@ -8,6 +8,8 @@ import struct
 from Util import BinaryReader, Camera
 from BoTWHeightmap import Heightmap, Config
 
+bgcolor = (0, 0, 0)
+
 size = [1024, 768]
 camera = Camera(size)
 camera.SetLodLevel(32.0)
@@ -82,12 +84,14 @@ while not done:
                 Config.draw_grid = not Config.draw_grid
             elif ev.key == pygame.K_o:
                 Config.draw_overdraw = not Config.draw_overdraw
+            elif ev.key == pygame.K_b:
+                bgcolor = (0, (0, 255)[bgcolor[1] == 0], 0)
         elif ev.type == pygame.MOUSEBUTTONDOWN:
             clickCoords = pygame.mouse.get_pos()
 
             heightmap.unk1Collection.CheckClick(camera, clickCoords)
 
-    screen.fill((0, 0, 0))
+    screen.fill(bgcolor)
 
     heightmap.Draw(screen, camera)
 
