@@ -188,6 +188,91 @@ class Unk1Instance:
             self.texImage = pygame.image.frombuffer(self.texBuffer, (256, 256), 'RGBA')
 
             f.close()
+        elif Config.draw_texType == 'water.extm':
+            try:
+                f = open(sys.argv[2] + '/' + self.fileName + '.water.extm', 'rb')
+
+            except:
+                self.LazyUnloadTexture()
+                return None
+
+            pixels = struct.unpack("<16384H", f.read(64*64*2*4))
+            self.texBuffer = bytearray(64*64*4)
+            j = 0
+            for i in range(0, 64*64*4, 4):
+                r = int((pixels[i + 0] / 65535.0) * 255.0)
+                g = int((pixels[i + 1] / 65535.0) * 255.0)
+                b = int((pixels[i + 2] / 65535.0) * 255.0)
+                a = int((pixels[i + 3] / 65535.0) * 255.0)
+
+                if Config.draw_channel == 'all':
+                    self.texBuffer[j + 0] = r
+                    self.texBuffer[j + 1] = g
+                    self.texBuffer[j + 2] = b
+                    self.texBuffer[j + 3] = a
+                elif Config.draw_channel == 'r':
+                    self.texBuffer[j + 0] = r
+                    self.texBuffer[j + 3] = 255
+                elif Config.draw_channel == 'g':
+                    self.texBuffer[j + 1] = g
+                    self.texBuffer[j + 3] = 255
+                elif Config.draw_channel == 'b':
+                    self.texBuffer[j + 2] = b
+                    self.texBuffer[j + 3] = 255
+                elif Config.draw_channel == 'a':
+                    self.texBuffer[j + 0] = a
+                    self.texBuffer[j + 1] = a
+                    self.texBuffer[j + 2] = a
+                    self.texBuffer[j + 3] = 255
+
+                j += 4
+
+            self.texImage = pygame.image.frombuffer(self.texBuffer, (64, 64), 'RGBA')
+
+            f.close()
+        elif Config.draw_texType == 'grass.extm':
+            try:
+                f = open(sys.argv[2] + '/' + self.fileName + '.grass.extm', 'rb')
+
+            except:
+                self.LazyUnloadTexture()
+                return None
+
+            pixels = struct.unpack("16384B", f.read(64*64*4))
+            self.texBuffer = bytearray(64*64*4)
+            j = 0
+            for i in range(0, 64*64*4, 4):
+                r = int(pixels[i + 0])
+                g = int(pixels[i + 1])
+                b = int(pixels[i + 2])
+                a = int(pixels[i + 3])
+
+                if Config.draw_channel == 'all':
+                    self.texBuffer[j + 0] = r
+                    self.texBuffer[j + 1] = g
+                    self.texBuffer[j + 2] = b
+                    self.texBuffer[j + 3] = a
+                elif Config.draw_channel == 'r':
+                    self.texBuffer[j + 0] = r
+                    self.texBuffer[j + 3] = 255
+                elif Config.draw_channel == 'g':
+                    self.texBuffer[j + 1] = g
+                    self.texBuffer[j + 3] = 255
+                elif Config.draw_channel == 'b':
+                    self.texBuffer[j + 2] = b
+                    self.texBuffer[j + 3] = 255
+                elif Config.draw_channel == 'a':
+                    self.texBuffer[j + 0] = a
+                    self.texBuffer[j + 1] = a
+                    self.texBuffer[j + 2] = a
+                    self.texBuffer[j + 3] = 255
+
+                j += 4
+
+            self.texImage = pygame.image.frombuffer(self.texBuffer, (64, 64), 'RGBA')
+
+            f.close()
+
 
         return self.texImage
 
