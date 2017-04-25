@@ -60,6 +60,8 @@ class Unk1Instance:
         self.texImage = None
         self.texBuffer = []
 
+        self.lastTexType = ''
+
         self.Parse()
 
     def GetLodColor(self):
@@ -93,13 +95,19 @@ class Unk1Instance:
 
         if transformed:
             if Config.draw_grid:
-                transformed[0] += 2
-                transformed[1] += 2
-                transformed[2] -= 2
-                transformed[3] -= 2
+                transformed[0] += 3
+                transformed[1] += 3
+                transformed[2] -= 3
+                transformed[3] -= 3
 
             if Config.draw_textures:
                 texImage = pygame.transform.scale(self.LazyLoadTexture(), (int(transformed[2]), int(transformed[3])))
+
+                if Config.disable_alpha:
+                    texImage.set_alpha(None)
+                else:
+                    texImage.set_alpha(255)
+
                 screen.blit(texImage, (transformed[0], transformed[1]))
             else:
                 self.LazyUnloadTexture()
@@ -118,26 +126,48 @@ class Unk1Instance:
             self.LazyUnloadTexture()
 
     def LazyLoadTexture(self):
-        if self.texImage:
+        if self.lastTexType != Config.draw_texType:
+            invalid = True
+        else:
+            invalid = False
+
+        self.lastTexType = Config.draw_texType
+
+        if not invalid and self.texImage:
             return self.texImage
 
-        f = open(sys.argv[2] + '/' + self.fileName + '.hght', 'rb')
+        if Config.draw_texType == 'hght':
+            f = open(sys.argv[2] + '/' + self.fileName + '.hght', 'rb')
 
-        heights = struct.unpack("<65536H", f.read(256*256*2))
-        self.texBuffer = bytearray(256*256*3)
-        j = 0
-        for i in range(0, 256*256):
-            pixelValue = int((heights[i] / 65535.0) * 255.0)
+            heights = struct.unpack("<65536H", f.read(256*256*2))
+            self.texBuffer = bytearray(256*256*3)
+            j = 0
+            for i in range(0, 256*256):
+                pixelValue = int((heights[i] / 65535.0) * 255.0)
 
-            self.texBuffer[j + 0] = pixelValue
-            # self.texBuffer[j + 1] = pixelValue
-            # self.texBuffer[j + 2] = pixelValue
+                self.texBuffer[j + 0] = pixelValue
+                # self.texBuffer[j + 1] = pixelValue
+                # self.texBuffer[j + 2] = pixelValue
 
-            j += 3
+                j += 3
 
-        self.texImage = pygame.image.frombuffer(self.texBuffer, (256, 256), 'RGB')
+            self.texImage = pygame.image.frombuffer(self.texBuffer, (256, 256), 'RGB')
 
-        f.close()
+            f.close()
+        elif Config.draw_texType == 'mate':
+            f = open(sys.argv[2] + '/' + self.fileName + '.mate', 'rb')
+
+            pixels = struct.unpack("262144B", f.read(256*256*4))
+            self.texBuffer = bytearray(256*256*4)
+            for i in range(0, 256*256*4, 4):
+                self.texBuffer[i + 0] = pixels[i + 0]
+                self.texBuffer[i + 1] = pixels[i + 1]
+                self.texBuffer[i + 2] = pixels[i + 2]
+                self.texBuffer[i + 3] = pixels[i + 3]
+
+            self.texImage = pygame.image.frombuffer(self.texBuffer, (256, 256), 'RGBA')
+
+            f.close()
 
         return self.texImage
 

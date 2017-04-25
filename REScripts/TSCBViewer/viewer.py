@@ -86,6 +86,11 @@ while not done:
                 Config.draw_overdraw = not Config.draw_overdraw
             elif ev.key == pygame.K_b:
                 bgcolor = (0, (0, 255)[bgcolor[1] == 0], 0)
+            elif ev.key == pygame.K_m:
+                Config.NextTexType()
+                print Config.draw_texType
+            elif ev.key == pygame.K_v:
+                Config.disable_alpha = not Config.disable_alpha
         elif ev.type == pygame.MOUSEBUTTONDOWN:
             clickCoords = pygame.mouse.get_pos()
 
