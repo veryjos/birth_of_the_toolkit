@@ -78,7 +78,7 @@ while not done:
         if ev.type == pygame.KEYDOWN:
             if ev.key == pygame.K_t:
                 Config.draw_textures = not Config.draw_textures
-            elif ev.key == pygame.K_c:
+            elif ev.key == pygame.K_p:
                 Config.draw_coverage = not Config.draw_coverage
             elif ev.key == pygame.K_g:
                 Config.draw_grid = not Config.draw_grid
@@ -89,6 +89,9 @@ while not done:
             elif ev.key == pygame.K_m:
                 Config.NextTexType()
                 print Config.draw_texType
+            elif ev.key == pygame.K_c:
+                Config.NextChannel()
+                print Config.draw_channel
             elif ev.key == pygame.K_v:
                 Config.disable_alpha = not Config.disable_alpha
         elif ev.type == pygame.MOUSEBUTTONDOWN:

@@ -61,6 +61,7 @@ class Unk1Instance:
         self.texBuffer = []
 
         self.lastTexType = ''
+        self.lastChannel = ''
 
         self.Parse()
 
@@ -101,14 +102,17 @@ class Unk1Instance:
                 transformed[3] -= 3
 
             if Config.draw_textures:
-                texImage = pygame.transform.scale(self.LazyLoadTexture(), (int(transformed[2]), int(transformed[3])))
+                texImage = self.LazyLoadTexture()
 
-                if Config.disable_alpha:
-                    texImage.set_alpha(None)
-                else:
-                    texImage.set_alpha(255)
+                if texImage:
+                    texImage = pygame.transform.scale(texImage, (int(transformed[2]), int(transformed[3])))
 
-                screen.blit(texImage, (transformed[0], transformed[1]))
+                    if Config.disable_alpha:
+                        texImage.set_alpha(None)
+                    else:
+                        texImage.set_alpha(255)
+
+                    screen.blit(texImage, (transformed[0], transformed[1]))
             else:
                 self.LazyUnloadTexture()
 
@@ -126,11 +130,12 @@ class Unk1Instance:
             self.LazyUnloadTexture()
 
     def LazyLoadTexture(self):
-        if self.lastTexType != Config.draw_texType:
+        if self.lastTexType != Config.draw_texType or self.lastChannel != Config.draw_channel:
             invalid = True
         else:
             invalid = False
 
+        self.lastChannel = Config.draw_channel
         self.lastTexType = Config.draw_texType
 
         if not invalid and self.texImage:
@@ -146,8 +151,8 @@ class Unk1Instance:
                 pixelValue = int((heights[i] / 65535.0) * 255.0)
 
                 self.texBuffer[j + 0] = pixelValue
-                # self.texBuffer[j + 1] = pixelValue
-                # self.texBuffer[j + 2] = pixelValue
+                self.texBuffer[j + 1] = pixelValue
+                self.texBuffer[j + 2] = pixelValue
 
                 j += 3
 
@@ -160,10 +165,25 @@ class Unk1Instance:
             pixels = struct.unpack("262144B", f.read(256*256*4))
             self.texBuffer = bytearray(256*256*4)
             for i in range(0, 256*256*4, 4):
-                self.texBuffer[i + 0] = pixels[i + 0]
-                self.texBuffer[i + 1] = pixels[i + 1]
-                self.texBuffer[i + 2] = pixels[i + 2]
-                self.texBuffer[i + 3] = pixels[i + 3]
+                if Config.draw_channel == 'all':
+                    self.texBuffer[i + 0] = pixels[i + 0]
+                    self.texBuffer[i + 1] = pixels[i + 1]
+                    self.texBuffer[i + 2] = pixels[i + 2]
+                    self.texBuffer[i + 3] = pixels[i + 3]
+                elif Config.draw_channel == 'r':
+                    self.texBuffer[i + 0] = pixels[i + 0]
+                    self.texBuffer[i + 3] = 255
+                elif Config.draw_channel == 'g':
+                    self.texBuffer[i + 1] = pixels[i + 1]
+                    self.texBuffer[i + 3] = 255
+                elif Config.draw_channel == 'b':
+                    self.texBuffer[i + 2] = pixels[i + 2]
+                    self.texBuffer[i + 3] = 255
+                elif Config.draw_channel == 'a':
+                    self.texBuffer[i + 0] = pixels[i + 3]
+                    self.texBuffer[i + 1] = pixels[i + 3]
+                    self.texBuffer[i + 2] = pixels[i + 3]
+                    self.texBuffer[i + 3] = 255
 
             self.texImage = pygame.image.frombuffer(self.texBuffer, (256, 256), 'RGBA')
 
