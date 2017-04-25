@@ -106,6 +106,12 @@ class Unk1Instance:
 
                 if Config.draw_coverage:
                     pygame.draw.rect(screen, self.GetLodColor(), transformed)
+                elif Config.draw_overdraw:
+                    s = pygame.Surface((transformed[2], transformed[3]))
+                    s.set_alpha(255 / 8)
+                    s.fill((255, 0, 0))
+
+                    screen.blit(s, (transformed[0], transformed[1]))
                 else:
                     pygame.draw.rect(screen, self.color, transformed)
         else:

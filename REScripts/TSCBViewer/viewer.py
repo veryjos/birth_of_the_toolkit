@@ -80,6 +80,8 @@ while not done:
                 Config.draw_coverage = not Config.draw_coverage
             elif ev.key == pygame.K_g:
                 Config.draw_grid = not Config.draw_grid
+            elif ev.key == pygame.K_o:
+                Config.draw_overdraw = not Config.draw_overdraw
         elif ev.type == pygame.MOUSEBUTTONDOWN:
             clickCoords = pygame.mouse.get_pos()
 
