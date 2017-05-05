@@ -1,8 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using BotWLib.Formats;
 using OpenTK;
 
 namespace BoTK.Editor.World.Terrain {
+  /// <summary>
+  /// A unit of terrain.
+  /// For all intents and purposes, this is basically a really shitty quadtree.
+  /// </summary>
   public class TerrainTile {
     public Vector2 CenterPosition { get; }
     public float EdgeLength { get; }
@@ -25,7 +31,14 @@ namespace BoTK.Editor.World.Terrain {
       return child?.GetChildAtLevel(pos, depth - 1);
     }
 
-    public TerrainTile GetDeepestChild(Vector2 pos) {
+    /// <summary>
+    /// Finds the depest child that satisfies a certain world position, with an optional maximum depth.
+    /// </summary>
+    /// <param name="pos">The world position to check for a child at</param>
+    /// <param name="maxDepth"></param>
+    /// <param name="currentDepth"></param>
+    /// <returns></returns>
+    public TerrainTile GetDeepestChild(Vector2 pos, int maxDepth = -1, int currentDepth = -1) {
       var child = Children[(pos.X < CenterPosition.X ? 0 : 1) + (pos.Y < CenterPosition.Y ? 0 : 2)];
 
       return child != null ? child.GetDeepestChild(pos) : this;
@@ -33,6 +46,36 @@ namespace BoTK.Editor.World.Terrain {
 
     public void SetChild(Vector2 pos, TerrainTile tile) {
       Children[(pos.X < CenterPosition.X ? 0 : 1) + (pos.Y < CenterPosition.Y ? 0 : 2)] = tile;
+    }
+
+    public IEnumerable<TerrainTile> GetChildrenForTileView(Vector2 pos, Vector2 bounds, int maxDepth = -1, int currentDepth = 0) {
+      // Check if the current depth is too deep
+      if (currentDepth >= maxDepth)
+        yield break;
+
+      // First, check if we're inside the region
+      if (!(CenterPosition.X > pos.X && CenterPosition.Y > pos.Y &&
+          CenterPosition.X < pos.X + bounds.X && CenterPosition.Y < pos.Y + bounds.Y))
+          yield break;
+
+      // Because the tile view will use painters algorithm, we need to make sure that we add ourselves
+      // before the children so that way they will be drawn on top of us.
+      yield return this;
+
+      // If we have no children, we can safely early-out and return ourselves because
+      // we're the best this region is going to get :)
+      if (Children.Length == 0)
+        yield break;
+
+
+      // Otherwise, iterate over each child and recursively call this method.
+      // Check if each of the children are in the region.
+      foreach (var child in Children) {
+        var recursiveChildren = child.GetChildrenForTileView(pos, bounds, maxDepth, currentDepth + 1);
+
+        foreach (var recursiveChild in recursiveChildren)
+          yield return recursiveChild;
+      }
     }
   }
 }

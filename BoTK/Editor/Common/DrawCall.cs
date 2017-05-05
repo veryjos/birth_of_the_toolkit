@@ -2,7 +2,6 @@
 
 namespace BoTK.Editor.Common {
   public class DrawCall {
-    public Material material;
     public Shader shader;
     public VertexBuffer vertexBuffer;
 
@@ -10,8 +9,6 @@ namespace BoTK.Editor.Common {
     }
 
     public void Submit() {
-      GL.Bin
-
     }
   }
 }

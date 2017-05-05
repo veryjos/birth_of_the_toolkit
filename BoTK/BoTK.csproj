@@ -57,8 +57,8 @@
     <Compile Include="Editor\Common\VertexBuffer.cs" />
     <Compile Include="Editor\Editor.cs" />
     <Compile Include="Editor\Renderable.cs" />
+    <Compile Include="Editor\World\Terrain\TerrainLodTileView.cs" />
     <Compile Include="Editor\World\Terrain\TerrainMap.cs" />
-    <Compile Include="Editor\World\Terrain\TerrainRenderable.cs" />
     <Compile Include="Editor\World\Terrain\TerrainTile.cs" />
     <Compile Include="Editor\World\WorldData.cs" />
     <Compile Include="Editor\World\WorldEditor.cs" />

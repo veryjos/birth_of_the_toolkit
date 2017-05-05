@@ -1,33 +1,33 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using BotWLib.Formats;
 
 using OpenTK;
 
 namespace BoTK.Editor.World.Terrain {
   public class TerrainMap : Renderable {
-    private TerrainTile RootTile;
+    public TerrainTile RootTile { get; }
 
     public TerrainMap(TSCB data) {
-      LoadFrom(data);
+      RootTile = LoadRootTileFrom(data);
     }
 
-    private void LoadFrom(TSCB data) {
-      RootTile = new TerrainTile(data.TileTableList[0]);
+    private TerrainTile LoadRootTileFrom(TSCB data) {
+      TerrainTile rootTile = null;
+      rootTile = new TerrainTile(data.TileTableList[0]);
 
       foreach (var tileMeta in data.TileTableList.Skip(1).ToArray()) {
         var terrainTile = new TerrainTile(tileMeta);
 
-        var parent = RootTile.GetDeepestChild(terrainTile.CenterPosition);
+        var parent = rootTile.GetDeepestChild(terrainTile.CenterPosition);
         parent.SetChild(terrainTile.CenterPosition, terrainTile);
       }
-    }
 
-    private Renderable LazyGenerateRenderData(Camera3D camera) {
-
+      return rootTile;
     }
 
     public void Render(Camera3D camera) {
-      let terrainRenderable = LazyGenerateRenderData(camera);
     }
   }
 }

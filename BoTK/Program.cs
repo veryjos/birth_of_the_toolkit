@@ -17,7 +17,7 @@ namespace BoTK {
     public static int MainWithOpts(ProgOptions options) {
       var tscbStream = File.OpenRead(options.dataFolder + "/Terrain/A/MainField.tscb");
 
-      var editor = new WorldEditor(tscbStream);
+      var editor = new WorldEditor(tscbStream, options.dataFolder + "/Terrain/A/MainField");
       editor.Start();
 
       return 0;
