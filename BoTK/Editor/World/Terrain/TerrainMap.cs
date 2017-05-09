@@ -28,6 +28,10 @@ namespace BoTK.Editor.World.Terrain {
     }
 
     public void Render(Camera3D camera) {
+      var viewMat = camera.ViewMatrix;
+      var projMat = camera.ProjectionMatrix;
+
+
     }
   }
 }

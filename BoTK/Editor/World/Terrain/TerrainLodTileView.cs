@@ -43,6 +43,7 @@ namespace BoTK.Editor.World.Terrain {
 
       foreach (var tile in contributors) {
         // Load the tile's texture data
+        var fileName = tile.Name + ".hght";
       }
     }
 

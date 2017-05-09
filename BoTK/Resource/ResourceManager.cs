@@ -1,17 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
-using System.IO;
-using System.Linq;
 
-namespace BotWWorldViewer.Resource {
-  internal static class ResourceManager {
-    private static readonly List<Archive> loadedArchives = new List<Archive>();
-    private static readonly Dictionary<string, string> fileMap = new Dictionary<string, string>();
+namespace BotWWorldViewer.Resource
+{
+  internal static class ResourceManager
+  {
+    private static List<Archive> loadedArchives = new List<Archive>();
+    private static Dictionary<string, string> fileMap = new Dictionary<string, string>();
 
-    public static Dictionary<string, string> FileMap { get; }
+    public static Dictionary<string, string> FileMap
+    {
+      get
+      {
+        return fileMap;
+      }
+    }
 
-    public static void LoadArchive(string filePath) {
+    public static List<Archive> LoadedArchives
+    {
+      get
+      {
+        return loadedArchives;
+      }
+    }
+
+    public static void LoadArchive(String filePath)
+    {
       var archive = Archive.Load(filePath);
       loadedArchives.Add(archive);
 
@@ -19,12 +33,22 @@ namespace BotWWorldViewer.Resource {
         fileMap.Add(file.Key, filePath);
     }
 
-    public static bool FileExists(String name) {
-      return loadedArchives.Any(arch => arch.ContainsFile(name));
+    public static bool FileExists(String name)
+    {
+      foreach (Archive arch in loadedArchives)
+        if (arch.ContainsFile(name))
+          return true;
+
+      return false;
     }
 
-    public static FramedStream ReadFile(String name) {
-      return (from arch in loadedArchives where arch.ContainsFile(name) select arch.ReadFile(name)).FirstOrDefault();
+    public static FramedStream ReadFile(String name)
+    {
+      foreach (Archive arch in loadedArchives)
+        if (arch.ContainsFile(name))
+          return arch.ReadFile(name);
+
+      return null;
     }
   }
 }

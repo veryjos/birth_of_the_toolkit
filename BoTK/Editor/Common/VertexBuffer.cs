@@ -1,34 +1,29 @@
 ﻿using System;
+using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
 
 using System.Runtime.InteropServices;
+using OpenTK;
 
 namespace BoTK.Editor.Common {
-  public struct ColoredVertex {
-    public float X, Y, Z;
-    public float R, G, B, A;
-
-    public const int Stride =
-      3 * 4 + // Position (3 floats)
-      4 * 4;  // Color (4 floats)
-  }
-
-  public class VertexBuffer : IDisposable {
+  public class VertexBuffer : IDisposable, Bindable {
     private readonly int vboId;
     private readonly int indexBufferId;
 
-    private readonly int length;
+    private readonly VertexLayout vertexLayout;
+
+    public readonly int length;
 
     public static VertexBuffer Create<T>(T[] vertices, uint[] indices)
       where T : struct {
-      var vertexBuffer = new VertexBuffer(indices.Length);
+      var vertexBuffer = new VertexBuffer(indices.Length, typeof(T));
 
       GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBuffer.vboId);
       GL.BindBuffer(BufferTarget.ElementArrayBuffer, vertexBuffer.indexBufferId);
 
-      GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(vertices.Length * Marshal.SizeOf(typeof(T))), vertices,
+      GL.BufferData(BufferTarget.ArrayBuffer, new IntPtr(vertices.Length * vertexBuffer.vertexLayout.Size), vertices,
         BufferUsageHint.StaticDraw);
-      GL.BufferData(BufferTarget.ElementArrayBuffer, new IntPtr(indices.Length * Marshal.SizeOf(typeof(T))), indices,
+      GL.BufferData(BufferTarget.ElementArrayBuffer, new IntPtr(indices.Length * 4), indices,
         BufferUsageHint.StaticDraw);
 
       GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -39,21 +34,36 @@ namespace BoTK.Editor.Common {
       return vertexBuffer;
     }
 
-    private VertexBuffer(int length) {
+    private VertexBuffer(int length, Type layoutType) {
       vboId = GL.GenBuffer();
       indexBufferId = GL.GenBuffer();
 
+      GLUtil.ThrowIfGLError();
+
       this.length = length;
 
-      GL.BindBuffer(BufferTarget.ArrayBuffer, vboId);
-      GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexBufferId);
+      vertexLayout = new VertexLayout(layoutType);
+    }
 
-      GLUtil.ThrowIfGLError();
+    public void Bind(Shader shader) {
     }
 
     public void Dispose() {
       GL.DeleteBuffers(2, new []{vboId, indexBufferId});
     }
 
+    public void Bind(DrawCall call) {
+      GL.BindBuffer(BufferTarget.ArrayBuffer, vboId);
+      GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexBufferId);
+
+      vertexLayout.Bind(call);
+    }
+
+    public void Unbind(DrawCall call) {
+      GL.BindBuffer(BufferTarget.ArrayBuffer, vboId);
+      GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexBufferId);
+
+      vertexLayout.Unbind(call);
+    }
   }
 }

@@ -37,6 +37,7 @@
     <Reference Include="CommandLine, Version=2.0.275.0, Culture=neutral, PublicKeyToken=de6f01bd326f8c32">
       <HintPath>packages\CommandLineParser.2.1.1-beta\lib\net45\CommandLine.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="OpenTK, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4">
       <HintPath>..\packages\OpenTK.2.0.0\lib\net20\OpenTK.dll</HintPath>
     </Reference>
@@ -50,17 +51,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Editor\Camera3D.cs" />
+    <Compile Include="Editor\Common\Bindable.cs" />
     <Compile Include="Editor\Common\DrawCall.cs" />
     <Compile Include="Editor\Common\GLUtil.cs" />
+    <Compile Include="Editor\Common\Material.cs" />
     <Compile Include="Editor\Common\Shader.cs" />
+    <Compile Include="Editor\Common\ShaderParameter.cs" />
     <Compile Include="Editor\Common\Texture.cs" />
     <Compile Include="Editor\Common\VertexBuffer.cs" />
+    <Compile Include="Editor\Common\VertexLayout.cs" />
+    <Compile Include="Editor\Common\VertexLayouts.cs" />
     <Compile Include="Editor\Editor.cs" />
     <Compile Include="Editor\Renderable.cs" />
     <Compile Include="Editor\World\Terrain\TerrainLodTileView.cs" />
     <Compile Include="Editor\World\Terrain\TerrainMap.cs" />
     <Compile Include="Editor\World\Terrain\TerrainTile.cs" />
-    <Compile Include="Editor\World\WorldData.cs" />
     <Compile Include="Editor\World\WorldEditor.cs" />
     <Compile Include="ProgOptions.cs" />
     <Compile Include="Program.cs" />

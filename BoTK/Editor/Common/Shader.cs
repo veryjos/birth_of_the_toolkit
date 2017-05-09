@@ -1,8 +1,10 @@
 ﻿using System;
+using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 
 namespace BoTK.Editor.Common {
-  public class Shader : IDisposable {
+
+  public class Shader : IDisposable, Bindable {
     private readonly int vertexShaderId;
     private readonly int fragmentShaderId;
 
@@ -38,9 +40,23 @@ namespace BoTK.Editor.Common {
       GL.ShaderSource(shaderId, source);
       GL.CompileShader(shaderId);
 
+      int status;
+      GL.GetShader(shaderId, OpenTK.Graphics.OpenGL4.ShaderParameter.CompileStatus, out status);
+
+      if (status == 0)
+        throw new GraphicsException($"Error compiling: {GL.GetShaderInfoLog(shaderId)}");
+
       GLUtil.ThrowIfGLError();
 
       return shaderId;
+    }
+
+    public int GetUniformLocation(string name) {
+      return GL.GetUniformLocation(programId, name);
+    }
+
+    public int GetAttributeLocation(string name) {
+      return GL.GetAttribLocation(programId, name);
     }
 
     public void Dispose() {
@@ -48,6 +64,14 @@ namespace BoTK.Editor.Common {
       GL.DeleteShader(fragmentShaderId);
 
       GL.DeleteProgram(programId);
+    }
+
+    public void Bind(DrawCall call) {
+      GL.UseProgram(programId);
+    }
+
+    public void Unbind(DrawCall call) {
+      GL.UseProgram(0);
     }
   }
 }

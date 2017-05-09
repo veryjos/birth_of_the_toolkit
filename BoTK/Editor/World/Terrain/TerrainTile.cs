@@ -7,7 +7,9 @@ using OpenTK;
 namespace BoTK.Editor.World.Terrain {
   /// <summary>
   /// A unit of terrain.
-  /// For all intents and purposes, this is basically a really shitty quadtree.
+  ///
+  /// For all intents and purposes, this is basically a really shitty quadtree
+  /// that holds data for rendering a tile of terrain.
   /// </summary>
   public class TerrainTile {
     public Vector2 CenterPosition { get; }
@@ -22,6 +24,12 @@ namespace BoTK.Editor.World.Terrain {
       Name = tileMetadata.Name;
     }
 
+    /// <summary>
+    /// Gets a child at a world position and a certain depth.
+    /// </summary>
+    /// <param name="pos">World position</param>
+    /// <param name="depth">LOD depth</param>
+    /// <returns>The tile found, or null if none</returns>
     public TerrainTile GetChildAtLevel(Vector2 pos, int depth = 0) {
       var child = Children[(pos.X < CenterPosition.X ? 0 : 1) + (pos.Y < CenterPosition.Y ? 0 : 2)];
 
@@ -44,10 +52,23 @@ namespace BoTK.Editor.World.Terrain {
       return child != null ? child.GetDeepestChild(pos) : this;
     }
 
+    /// <summary>
+    /// Sets the child at a world position.
+    /// </summary>
+    /// <param name="pos">World position</param>
+    /// <param name="tile">The tile to set</param>
     public void SetChild(Vector2 pos, TerrainTile tile) {
       Children[(pos.X < CenterPosition.X ? 0 : 1) + (pos.Y < CenterPosition.Y ? 0 : 2)] = tile;
     }
 
+    /// <summary>
+    /// Gets a child for a tile view, sorted for painters algorithm.
+    /// </summary>
+    /// <param name="pos">The world position of the origin of the rectangle</param>
+    /// <param name="bounds">The bounds for the rectangle</param>
+    /// <param name="maxDepth">Maximum depth of the LOD to source</param>
+    /// <param name="currentDepth">Used iternally for recursion, don't set</param>
+    /// <returns>List of terrain tiles in the rectangle, sorted for painters algorithm</returns>
     public IEnumerable<TerrainTile> GetChildrenForTileView(Vector2 pos, Vector2 bounds, int maxDepth = -1, int currentDepth = 0) {
       // Check if the current depth is too deep
       if (currentDepth >= maxDepth)
