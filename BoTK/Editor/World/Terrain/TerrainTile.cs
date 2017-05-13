@@ -16,12 +16,33 @@ namespace BoTK.Editor.World.Terrain {
     public float EdgeLength { get; }
     public string Name { get; }
 
+    public int LodLevel { get; }
+
     public readonly TerrainTile[] Children = new TerrainTile[4];
 
     public TerrainTile(TSCB.TileTableEntry tileMetadata) {
       CenterPosition = new Vector2{ X = tileMetadata.CenterX, Y = tileMetadata.CenterY };
       EdgeLength = tileMetadata.EdgeLength;
       Name = tileMetadata.Name;
+
+      LodLevel = GetLodLevelFromEdgeLength(EdgeLength);
+    }
+
+    public static int GetLodLevelFromEdgeLength(float edgeLength) {
+      for (int i = 0; i < 10; ++i) {
+        if (edgeLength == Math.Pow(2, 9))
+          return i;
+      }
+
+      return -1;
+    }
+
+    /// <summary>
+    /// Gets the heightmap for this terrain tile.
+    /// </summary>
+    /// <returns>Heightmap for this terrain tile</returns>
+    public TerrainHeightmap GetHeightmap() {
+      return TerrainHeightmapBank.GetOrLoadHeightmap(Name + ".hght");
     }
 
     /// <summary>
@@ -71,7 +92,7 @@ namespace BoTK.Editor.World.Terrain {
     /// <returns>List of terrain tiles in the rectangle, sorted for painters algorithm</returns>
     public IEnumerable<TerrainTile> GetChildrenForTileView(Vector2 pos, Vector2 bounds, int maxDepth = -1, int currentDepth = 0) {
       // Check if the current depth is too deep
-      if (currentDepth >= maxDepth)
+      if (currentDepth > maxDepth)
         yield break;
 
       // First, check if we're inside the region
@@ -87,7 +108,6 @@ namespace BoTK.Editor.World.Terrain {
       // we're the best this region is going to get :)
       if (Children.Length == 0)
         yield break;
-
 
       // Otherwise, iterate over each child and recursively call this method.
       // Check if each of the children are in the region.

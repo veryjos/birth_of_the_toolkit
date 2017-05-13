@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using BotWLib.Formats;
-
 using OpenTK;
 
 namespace BoTK.Editor.World.Terrain {
   public class TerrainMap : Renderable {
     public TerrainTile RootTile { get; }
+
+    private TerrainLodTileView tileView = null;
 
     public TerrainMap(TSCB data) {
       RootTile = LoadRootTileFrom(data);
@@ -28,10 +27,9 @@ namespace BoTK.Editor.World.Terrain {
     }
 
     public void Render(Camera3D camera) {
-      var viewMat = camera.ViewMatrix;
-      var projMat = camera.ProjectionMatrix;
+      tileView = new TerrainLodTileView(this, Vector2.Subtract(camera.Position.Xy, new Vector2(1.0f, 1.0f)), 2.0f, 0, 256);
 
-
+      tileView.Render(camera);
     }
   }
 }

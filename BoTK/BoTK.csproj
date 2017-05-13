@@ -63,6 +63,8 @@
     <Compile Include="Editor\Common\VertexLayouts.cs" />
     <Compile Include="Editor\Editor.cs" />
     <Compile Include="Editor\Renderable.cs" />
+    <Compile Include="Editor\World\Terrain\TerrainHeightmap.cs" />
+    <Compile Include="Editor\World\Terrain\TerrainHeightmapBank.cs" />
     <Compile Include="Editor\World\Terrain\TerrainLodTileView.cs" />
     <Compile Include="Editor\World\Terrain\TerrainMap.cs" />
     <Compile Include="Editor\World\Terrain\TerrainTile.cs" />

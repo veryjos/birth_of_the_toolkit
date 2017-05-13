@@ -13,7 +13,9 @@ namespace BoTK.Editor.Common {
 
     public readonly PixelType PixType;
 
-    public Texture(int width, int height, byte[] data, PixelFormat pixelFormat, PixelInternalFormat internalPixelFormat, PixelType pixelType) {
+    private int texUnit;
+
+    public Texture(int width, int height, PixelFormat pixelFormat, PixelInternalFormat internalPixelFormat, PixelType pixelType) {
       TextureBufferId = GL.GenTexture();
 
       Width = width;
@@ -23,13 +25,30 @@ namespace BoTK.Editor.Common {
       InternalFormat = internalPixelFormat;
 
       PixType = pixelType;
+    }
 
-      GL.BindTexture(TextureTarget.Texture2D, TextureBufferId);
+    public void Bind(int textureUnit) {
+      texUnit = textureUnit;
+
+      GL.BindTextureUnit(textureUnit, TextureBufferId);
 
       GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Linear);
       GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Linear);
 
-      GL.TexImage2D(TextureTarget.Texture2D, 0, internalPixelFormat, width, height, 0, pixelFormat, PixelType.UnsignedByte, data);
+      GL.Enable(EnableCap.Texture2D);
+    }
+
+    public void Unbind() {
+      GL.BindTextureUnit(texUnit, TextureBufferId);
+
+      GL.Disable(EnableCap.Texture2D);
+    }
+
+    public void SetData<T>(T[] data)
+      where T: struct
+    {
+      GL.BindTexture(TextureTarget.Texture2D, TextureBufferId);
+      GL.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat, Width, Height, 0, Format, PixType, data);
 
       GL.BindTexture(TextureTarget.Texture2D, 0);
     }

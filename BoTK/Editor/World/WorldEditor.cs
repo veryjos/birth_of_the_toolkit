@@ -18,33 +18,7 @@ namespace BoTK.Editor.World {
     public Material testMaterial;
 
     public WorldEditor(Stream tscbInputStream, string mapDirectory) {
-
-      var testVert = File.ReadAllText("redist/shaders/test.vert");
-      var testFrag = File.ReadAllText("redist/shaders/test.frag");
-      testShader = new Shader(testVert, testFrag);
-
-      testMaterial = new Material();
-
-      ColoredVertex[] vertices = new ColoredVertex[] {
-        ColoredVertex.Create(
-          new Vector3(0.0f, 0.0f, 0.0f),
-          new Vector4(1.0f, 0.0f, 0.0f, 1.0f)
-        ),
-
-        ColoredVertex.Create(
-          new Vector3(1.0f, 0.0f, 0.0f),
-          new Vector4(1.0f, 0.0f, 0.0f, 1.0f)
-        ),
-
-        ColoredVertex.Create(
-          new Vector3(1.0f, 1.0f, 0.0f),
-          new Vector4(1.0f, 0.0f, 0.0f, 1.0f)
-        ),
-      };
-
-      testVertexBuffer = VertexBuffer.Create(vertices, new uint[]{
-        0, 1, 2
-      });
+      Camera = new Camera3D();
 
       // Walk the map directory and load every archive
       var dir = new DirectoryInfo(mapDirectory);
@@ -63,8 +37,7 @@ namespace BoTK.Editor.World {
       GL.ClearColor(Color4.White);
       GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-      DrawCall drawCall = new DrawCall(testShader, testMaterial, testVertexBuffer);
-      drawCall.Submit();
+      MainTerrainMap.Render(Camera);
 
       SwapBuffers();
     }
