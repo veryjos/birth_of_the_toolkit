@@ -13,18 +13,15 @@ namespace BoTK.Editor.Common {
     }
 
     public void Submit() {
-      // For now, just render in place and reset state changes
+      // For now, just render in place
       shader.Bind(this);
 
       material.Bind(this);
       vertexBuffer.Bind(this);
 
+      GL.Enable(EnableCap.DepthTest);
+
       GL.DrawElements(PrimitiveType.Triangles, vertexBuffer.length, DrawElementsType.UnsignedInt, 0);
-
-      shader.Unbind(this);
-
-      material.Unbind(this);
-      vertexBuffer.Unbind(this);
     }
   }
 }

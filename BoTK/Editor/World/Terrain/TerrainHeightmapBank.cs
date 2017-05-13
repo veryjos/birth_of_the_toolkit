@@ -15,7 +15,7 @@ namespace BoTK.Editor.World.Terrain {
       var dataStream = ResourceManager.ReadFile(name);
 
       // Convert the byte array into an unsigned short array
-      var binaryReader = new EndianBinaryReader(dataStream, Endian.Big);
+      var binaryReader = new EndianBinaryReader(dataStream, Endian.Little);
 
       var ushorts = new ushort[256, 256];
       for (int i = 0; i < 256 * 256; ++i)

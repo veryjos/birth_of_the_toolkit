@@ -18,7 +18,7 @@ namespace BoTK.Editor.World.Terrain {
 
     public int LodLevel { get; }
 
-    public readonly TerrainTile[] Children = new TerrainTile[4];
+    public readonly TerrainTile[] Children = { null, null, null, null };
 
     public TerrainTile(TSCB.TileTableEntry tileMetadata) {
       CenterPosition = new Vector2{ X = tileMetadata.CenterX, Y = tileMetadata.CenterY };
@@ -95,23 +95,30 @@ namespace BoTK.Editor.World.Terrain {
       if (currentDepth > maxDepth)
         yield break;
 
-      // First, check if we're inside the region
-      if (!(CenterPosition.X > pos.X && CenterPosition.Y > pos.Y &&
-          CenterPosition.X < pos.X + bounds.X && CenterPosition.Y < pos.Y + bounds.Y))
+      // First, check if we're intersecting with the region
+      var halfEdge = EdgeLength / 2.0f;
+      if (!(CenterPosition.X > pos.X - halfEdge && CenterPosition.Y > pos.Y - halfEdge &&
+          CenterPosition.X < pos.X + bounds.X + halfEdge && CenterPosition.Y < pos.Y + bounds.Y + halfEdge))
           yield break;
 
       // Because the tile view will use painters algorithm, we need to make sure that we add ourselves
       // before the children so that way they will be drawn on top of us.
-      yield return this;
+
+      // However, if we have full children, then there's no reason to return us.
+      if (!(Children.Count(p => p != null) == 4 && currentDepth != maxDepth))
+        yield return this;
 
       // If we have no children, we can safely early-out and return ourselves because
       // we're the best this region is going to get :)
-      if (Children.Length == 0)
+      if (Children.Count(p => p == null) == 4)
         yield break;
 
       // Otherwise, iterate over each child and recursively call this method.
       // Check if each of the children are in the region.
       foreach (var child in Children) {
+        if (child == null)
+          continue;
+
         var recursiveChildren = child.GetChildrenForTileView(pos, bounds, maxDepth, currentDepth + 1);
 
         foreach (var recursiveChild in recursiveChildren)

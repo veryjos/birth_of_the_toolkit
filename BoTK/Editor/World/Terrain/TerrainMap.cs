@@ -6,10 +6,11 @@ namespace BoTK.Editor.World.Terrain {
   public class TerrainMap : Renderable {
     public TerrainTile RootTile { get; }
 
-    private TerrainLodTileView tileView = null;
+    private TerrainLodLayout lodLayout;
 
     public TerrainMap(TSCB data) {
       RootTile = LoadRootTileFrom(data);
+      lodLayout = new TerrainLodLayout(this);
     }
 
     private TerrainTile LoadRootTileFrom(TSCB data) {
@@ -27,9 +28,10 @@ namespace BoTK.Editor.World.Terrain {
     }
 
     public void Render(Camera3D camera) {
-      tileView = new TerrainLodTileView(this, Vector2.Subtract(camera.Position.Xy, new Vector2(1.0f, 1.0f)), 2.0f, 0, 256);
+      lodLayout.SetCameraPos(camera.Position.X, camera.Position.Z);
 
-      tileView.Render(camera);
+      foreach (var tileView in lodLayout.TileViews)
+        tileView.Render(camera);
     }
   }
 }

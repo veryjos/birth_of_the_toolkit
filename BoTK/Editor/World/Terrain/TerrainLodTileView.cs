@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Permissions;
@@ -48,31 +49,11 @@ namespace BoTK.Editor.World.Terrain {
       VboSize = vboSize;
 
       material = new Material();
-      shader = new Shader(
-@"#version 130
-
-in vec3 Position;
-in vec4 Color;
-
-out Vec4 vColor;
-
-void main() {
-  vColor = Color;
-
-  gl_Position = vec4(Position, 1.0);
-}
-",
-@"#version 130
-
-in Vec4 vColor;
-out vec4 frag_color;
-
-void main() {
-  frag_color = vColor;
-}
-");
+      shader = new Shader(File.ReadAllText("redist/shaders/test.vert"),
+        File.ReadAllText("redist/shaders/test.frag"));
     }
 
+    // TODO: Reduce overdraw, other optimizations, bilinear filtering..
     private void RebuildVertexBuffer() {
       // Destroy the old vertex buffer
       vertexBuffer?.Dispose();
@@ -82,7 +63,7 @@ void main() {
       var indices = new uint[(numQuads * numQuads) * 6];
 
       uint vertNum = 0;
-      uint vertStride = numQuads;
+      uint vertStride = VboSize;
 
       for (int i = 0; i < indices.Length; i += 6) {
         // Generates triangle indices in CW order
@@ -99,12 +80,12 @@ void main() {
         indices[i + 4] = vertNum + 1;
         indices[i + 5] = vertNum + vertStride + 1;
 
+        vertNum++;
+
         // We need to skip the last vert of each row
         // so we don't make some weird wrapping-around tris
-        if (vertNum % vertStride == 0)
+        if ((vertNum + 1) % vertStride == 0)
           vertNum++;
-
-        vertNum++;
       }
 
       // Start generating new VBO data
@@ -116,19 +97,23 @@ void main() {
         float z = 0.0f;
 
         int i = 0;
-        for (int ix = 0; ix < VboSize; ix++) {
+        for (int iy = 0; iy < VboSize; iy++) {
           x = 0.0f;
 
-          for (int iy = 0; iy < VboSize; iy++) {
+          for (int ix = 0; ix < VboSize; ix++) {
             vboData[i++] = new ColoredVertex() {
-              R = 1.0f,
-              G = 1.0f,
-              B = 1.0f,
+              R = 0.0f,
+              G = 0.0f,
+              B = 0.0f,
               A = 1.0f,
 
               X = x,
               Y = 0.0f,
-              Z = z
+              Z = z,
+
+              NX = 0.0f,
+              NY = 0.0f,
+              NZ = 0.0f
             };
 
             x += Bounds.X / (VboSize - 1);
@@ -150,7 +135,7 @@ void main() {
 
         // Figure out how far we'll have to step for nearest-neighbor filtering
         // TODO: We're assuming square from this point on :~)
-        var iBlitStep = (int)(tile.EdgeLength / Bounds.X);
+        var iBlitStep = (tile.EdgeLength / Bounds.X) * (VboSize / 256);
 
         // Convert the tile's position into the grid position we'll blit into the VBO
         var blitX = tile.CenterPosition.X - tile.EdgeLength / 2; // blitX is now world-space top left corner
@@ -166,24 +151,61 @@ void main() {
         // Blit this data onto our VBO
         for (int x = 0; x < 256; ++x) {
           for (int y = 0; y < 256; ++y) {
-            var px = iBlitX + x * iBlitStep;
-            var py = iBlitY + y * iBlitStep;
-
-            if (px < 0 || py < 0 ||
-                px >= VboSize || py >= VboSize)
-              continue;
+            var px = (int)(iBlitX + x * iBlitStep);
+            var py = (int)(iBlitY + y * iBlitStep);
 
             var height = heightmap.Data[x, y];
-            vboData[px + py * VboSize].Z = height;
 
             for (int ex = 0; ex < iBlitStep; ex++) {
               for (int ey = 0; ey < iBlitStep; ey++) {
-                // vboData[px + ex + (py + ey) * VboSize].Z = height;
+                  if (px + ex < 0 || py + ey < 0 ||
+                    px + ex >= VboSize || py + ey >= VboSize)
+                    continue;
+
+                vboData[px + ex + (py + ey) * VboSize].Y = (height / 65535.0f);
                 vboData[px + ex + (py + ey) * VboSize].R = (height / 65535.0f);
               }
             }
           }
         }
+      }
+
+      // Calculate vertex normals
+      var vertDivisors = new int[VboSize * VboSize];
+      var vertNormals = new Vector3[VboSize * VboSize];
+      for (int i = 0; i < indices.Length; i += 3) {
+        var p1 = vboData[indices[i + 0]];
+        var p2 = vboData[indices[i + 1]];
+        var p3 = vboData[indices[i + 2]];
+
+        var edge1 = Vector3.Subtract(
+                      new Vector3(p2.X, p2.Y, p2.Z),
+                      new Vector3(p1.X, p1.Y, p1.Z)
+                    );
+
+        var edge2 = Vector3.Subtract(
+                      new Vector3(p3.X, p3.Y, p3.Z),
+                      new Vector3(p1.X, p1.Y, p1.Z)
+                    );
+
+        var normal = Vector3.Cross(edge1, edge2).Normalized();
+
+        vertNormals[indices[i + 0]] += normal;
+        vertDivisors[indices[i + 0]]++;
+
+        vertNormals[indices[i + 1]] += normal;
+        vertDivisors[indices[i + 1]]++;
+
+        vertNormals[indices[i + 2]] += normal;
+        vertDivisors[indices[i + 2]]++;
+      }
+
+      for (int i = 0; i < vertNormals.Length; ++i) {
+        vertNormals[i] /= vertDivisors[i];
+
+        vboData[i].NX = vertNormals[i].X;
+        vboData[i].NY = vertNormals[i].Y;
+        vboData[i].NZ = vertNormals[i].Z;
       }
 
       // Create and validate the vertex buffer
@@ -196,6 +218,9 @@ void main() {
       if (vertexBufferInvalid) {
         RebuildVertexBuffer();
       }
+
+      var model = Matrix4.CreateTranslation(Position.X, 0.0f, Position.Y);
+      material.SetShaderParameter("modelView", model * camera.ViewMatrix * camera.ProjectionMatrix);
 
       DrawCall drawCall = new DrawCall(shader, material, vertexBuffer);
       drawCall.Submit();
