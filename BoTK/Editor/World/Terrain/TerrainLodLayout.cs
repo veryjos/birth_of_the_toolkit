@@ -49,7 +49,7 @@ namespace BoTK.Editor.World.Terrain {
       // Create the less-detailed LODs
       var offset = 0.0f;
       var lastSize = 0.125f;
-      for (int level = 7; level >= 4; --level) {
+      for (int level = 7; level >= 6; --level) {
         // Get the world tile size
         var worldTileSize = lastSize * 3.0f;
         lastSize = worldTileSize;

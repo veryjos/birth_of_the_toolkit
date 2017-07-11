@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BotWLib.Formats;
 using OpenTK;
 
@@ -43,6 +44,10 @@ namespace BoTK.Editor.World.Terrain {
     /// <returns>Heightmap for this terrain tile</returns>
     public TerrainHeightmap GetHeightmap() {
       return TerrainHeightmapBank.GetOrLoadHeightmap(Name + ".hght");
+    }
+
+    public Task<TerrainHeightmap> GetHeightmapAsync() {
+      return TerrainHeightmapBank.GetOrLoadHeightmapAsync(Name + ".hght");
     }
 
     /// <summary>

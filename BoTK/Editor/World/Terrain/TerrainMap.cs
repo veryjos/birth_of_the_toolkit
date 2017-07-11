@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using BotWLib.Formats;
-using OpenTK;
 
 namespace BoTK.Editor.World.Terrain {
   public class TerrainMap : Renderable {
@@ -10,7 +9,6 @@ namespace BoTK.Editor.World.Terrain {
 
     public TerrainMap(TSCB data) {
       RootTile = LoadRootTileFrom(data);
-      lodLayout = new TerrainLodLayout(this);
     }
 
     private TerrainTile LoadRootTileFrom(TSCB data) {
@@ -28,7 +26,10 @@ namespace BoTK.Editor.World.Terrain {
     }
 
     public void Render(Camera3D camera) {
-      lodLayout.SetCameraPos(camera.Position.X, camera.Position.Z);
+      if (lodLayout == null) {
+        lodLayout = new TerrainLodLayout(this);
+        lodLayout.SetCameraPos(0, 0);
+      }
 
       foreach (var tileView in lodLayout.TileViews)
         tileView.Render(camera);
